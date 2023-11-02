@@ -1,0 +1,12 @@
+all -> base
+components -> modules
+groups -> roles (maybe)
+
+std sync waves
+
+1-10 operators default 5
+10-20 operator configurations  default 15
+20-30 additional configurations default 25
+
+x1/x2 imperative pre hook 
+x8/x9 imperative post hook

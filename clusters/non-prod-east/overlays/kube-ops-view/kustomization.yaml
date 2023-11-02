@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../../../components/kube-ops-view/
+
+patches:
+
+  - patch: |-
+      - op: replace
+        path: /spec/href
+        value: "https://kube-ops-view-kube-ops-view.apps.non-prod-east.example.domain"
+    target:
+      kind: ConsoleLink
+      name: kube-ops-view-link
+      namespace: kube-ops-view

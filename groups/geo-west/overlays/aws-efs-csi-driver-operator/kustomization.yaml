@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../components/aes-efs-csi-driver-operator/
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /parameters/fileSystemId
+        value: fs-a5324911
+    target:
+      kind: StorageClass 
