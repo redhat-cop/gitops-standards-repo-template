@@ -16,6 +16,8 @@ This folder contains all of the root pieces of configurations, these are sometim
 
 ![Components](.docs/media/components.png "Components")
 
+For more examples and starter configurations for components, see the [Gitops Catalog](https://github.com/redhat-cop/gitops-catalog).
+
 ### Groups
 
 This folder contains common pieces of configurations that can be applied to a group of clusters. Groups can capture concepts like the purpose of the cluster (lab,non-prod, prod), the geography of the cluster (west, east, dc1, dc2), the security profile of the cluster (pci, non-pci, connected, disconnected) etc...
