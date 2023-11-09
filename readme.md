@@ -92,6 +92,30 @@ envsubst < .bootstrap/root-application.yaml | oc apply -f -
 
 Note: for pedagogical reason this repo contains some example of components, groups and clusters, you will have to likely remove these examples and start adding the configurations you actually need.
 
+### Local tools & setup
+
+In order to work with this repo effectively, you'll need the following tools installed locally:
+
+- [oc](https://docs.openshift.com/container-platform/4.14/cli_reference/openshift_cli/getting-started-cli.html#installing-openshift-cli)
+- [helm](https://helm.sh/docs/intro/install/)
+- [kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/)
+
+### Debugging
+
+Most debugging and troubleshooting can be done by rednering the root app of apps locally using helm & kustomize. Here are a few examples.
+
+Which applications are currently included in the `hub` cluster?
+
+```bash
+kustomize build clusters/hub/ --enable-helm
+```
+
+Which applications are part of the `non-prod` group?
+
+```bash
+kustomize build groups/non-prod/ --enable-helm
+```
+
 ## Use cases
 
 ### Pinning and Promotions
