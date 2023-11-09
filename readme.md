@@ -102,7 +102,7 @@ In order to work with this repo effectively, you'll need the following tools ins
 
 ### Debugging
 
-Most debugging and troubleshooting can be done by rednering the root app of apps locally using helm & kustomize. Here are a few examples.
+Most debugging and troubleshooting can be done by rendering the root app of apps locally using helm & kustomize. Here are a few examples.
 
 Which applications are currently included in the `hub` cluster?
 
