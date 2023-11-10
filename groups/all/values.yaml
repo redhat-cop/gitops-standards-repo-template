@@ -1,27 +1,3 @@
-default:
-  app:
-    enabled: true
-    enableAutoSync: true
-    autoSyncPrune: false
-    project: cluster-config
-    labels:
-      app-source: group-all
-      repo: cluster-config
-    destination:
-      namespace: openshift-gitops
-      server: https://kubernetes.default.svc
-    source:
-      repoURL: https://github.com/raffaelespazzoli/gitops-std-repo.git
-      targetRevision: HEAD
-    syncOptions:
-    - ApplyOutOfSyncOnly=true
-    - PrunePropagationPolicy=foreground
-    - PruneLast=true
-    - ServerSideApply=true  
-    - FailOnSharedResource=true
-    - RespectIgnoreDifferences=true
-    - CreateNamespace=false      
-
 projects:
 
   cluster-config:
@@ -31,7 +7,7 @@ projects:
     description: Project for overall cluster configuration
     namespace: openshift-gitops
     sourceRepos:
-    - https://github.com/raffaelespazzoli/gitops-std-repo
+    - "{{ .Values.default.app.source.repoURL }}"
     destinations: |
       - namespace: '*'
         server: https://kubernetes.default.svc
