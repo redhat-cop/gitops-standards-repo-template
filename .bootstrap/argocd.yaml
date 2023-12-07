@@ -5,6 +5,7 @@ metadata:
   name: openshift-gitops
   namespace: openshift-gitops
 spec:
+  resourceTrackingMethod: annotation
   kustomizeBuildOptions: --enable-alpha-plugins --load-restrictor LoadRestrictionsNone --helm-command /usr/local/bin/helm
   extraConfig:
     resource.compareoptions: |
@@ -30,6 +31,12 @@ spec:
         insecureEdgeTerminationPolicy: Redirect
     service:
       type: ""
+  resourceIgnoreDifferences:
+    resourceIdentifiers:
+      - customization:
+          jsonPointers:
+            - /data
+        kind: Secret      
   resourceCustomizations: |
     argoproj.io/Application:
       health.lua: |
