@@ -84,15 +84,19 @@ Once you have a copy of this repo in your organization, you have to seed your Hu
 To do so you can simply run this commands, however you might want to implement these steps in different ways in your environment:
 
 ```sh
-export gitops_repo=<your newly created repo>
-export cluster_name=<your hub cluster name, typically "hub">
+export gitops_repo=<your newly created repo> #<your newly created repo>
+export cluster_name=hub #<your hub cluster name, typically "hub">
+export cluster_base_domain=$(oc get ingress.config.openshift.io cluster --template={{.spec.domain}} | sed -e "s/^apps.//")
+export platform_base_domain=${cluster_base_domain#*.} #<if uou are building a fleet of cluster, they will probably all share a base domain, in this example we assume that a cluster domain is <cluster_name>.<platform_base_domain> >
 oc apply -f .bootstrap/subscription.yaml
 oc apply -f .bootstrap/cluster-rolebinding.yaml
-oc apply -f .bootstrap/argocd.yaml
+envsubst < .bootstrap/argocd.yaml | oc apply -f -
 envsubst < .bootstrap/root-application.yaml | oc apply -f -
 ```
 
 Note: for pedagogical reason this repo contains some example of components, groups and clusters, you will have to likely remove these examples and start adding the configurations you actually need.
+
+Note: these parameters are replaced by a sidecar container. the `.images` folder contains the dockerfile to create this container. You can use the same parameter based approach for all the clusters in the fleet.
 
 ### Local tools & setup
 
