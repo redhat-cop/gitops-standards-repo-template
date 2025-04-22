@@ -26,13 +26,19 @@ metadata:
 {{- end }}
 spec:
   destination:
+    {{- if (($val.destination).namespace) }}
     namespace: {{ (($val.destination).namespace) | default $.Values.default.app.destination.namespace | required (printf "No destination.namespace specified for %s" $key ) }}
+    {{- end }}
     server: {{ (($val.destination).server) | default $.Values.default.app.destination.server | required (printf "No destination.server specified for %s" $key ) }}
 {{- if $.Values.projectOverride }}
   project: {{ $.Values.projectOverride }}
 {{- else }}
   project: {{ $val.project | default $.Values.default.app.project | required (printf "No project specified for %s" $key ) }}
 {{- end }}
+  {{- with $val.ignoreDifferences }}
+  ignoreDifferences:
+{{ toYaml . | indent 2 }}
+  {{- end }}
 {{- if (hasKey $val "enableAutoSync" | ternary $val.enableAutoSync $.Values.default.app.enableAutoSync) }}
   syncPolicy:
     automated:
@@ -52,10 +58,23 @@ spec:
       {{- end }}
     {{- end}}
 {{- end }}
+{{- if $val.sources }}
+  {{- with $val.sources }}
+  sources:
+{{ toYaml . | indent 4 }}
+  {{- end }}
+{{- else }}
   source:
     path: {{ tpl $val.source.path $ }}
     repoURL: {{ $val.source.repoURL | default $.Values.default.app.source.repoURL | required (printf "No source.repoURL specified for %s" $key ) }}
     targetRevision: {{ $val.source.targetRevision | default $.Values.default.app.source.targetRevision | required (printf "No source.targetRevision specified for %s" $key ) }}
+    {{- if $val.source.plugin }}
+    {{- with $val.source.plugin }}
+    plugin:
+{{ toYaml . | indent 6 }}
+    {{- end }}
+    {{- end }}
+{{- end }}
 {{- if ($val.source | default dict ).extraSourceFields }}
 {{ tpl $val.source.extraSourceFields $ | indent 4 }}
 {{- else if $.Values.default.app.source.extraSourceFields }}
