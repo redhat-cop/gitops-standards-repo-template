@@ -228,24 +228,33 @@ spec:
       g, openshift-admins, role:admin
     scopes: "[groups]"
   repo:
-    volumes:
-      - emptyDir: {}
-        name: policy-generator
-    initContainers:
-      - args:
-        - -c
-        - cp /etc/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator/PolicyGenerator
-          /policy-generator/PolicyGenerator
-        command:
-          - /bin/bash
-        image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel8:v2.7
-        name: policy-generator-install
+    sidecarContainers:
+      - name: setenv-plugin
+        command: [/var/run/argocd/argocd-cmp-server]
+        envFrom:
+          - configMapRef:
+              name: environment-variables
+        image: quay.io/raffaelespazzoli/raffa-envsub:1.1
+        imagePullPolicy: Always
+        securityContext:
+          runAsNonRoot: true
         volumeMounts:
-          - mountPath: /policy-generator
-            name: policy-generator
-    volumeMounts:
-      - mountPath: /.config/kustomize/plugin/policy.open-cluster-management.io/v1/policygenerator
-        name: policy-generator
+          - mountPath: /var/run/argocd
+            name: var-files
+          - mountPath: /home/argocd/cmp-server/plugins
+            name: plugins
+          - mountPath: /tmp
+            name: tmp
+          - mountPath: /home/argocd/cmp-server/config/plugin.yaml
+            subPath: plugin.yaml
+            name: setenv-cmp-plugin
+    volumes:
+      - configMap:
+          name: setenv-cmp-plugin
+        name: setenv-cmp-plugin
+    env:
+      - name: KUSTOMIZE_PLUGIN_HOME
+        value: /etc/kustomize/plugin
     resources:
       limits:
         cpu: "1"
@@ -311,3 +320,40 @@ spec:
         cpu: 250m
         memory: 1Gi
     sharding: {}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: setenv-cmp-plugin
+  namespace: openshift-gitops
+data:
+  plugin.yaml: |
+    apiVersion: argoproj.io/v1alpha1
+    kind: ConfigManagementPlugin
+    metadata:
+      name: setenv-cmp-plugin
+    spec:
+      version: v1.0
+      init:
+        command: [sh, -c, 'echo "Initializing setenv-plugin-cmp..."']
+      generate:
+        command:
+          - sh
+          - "-c"
+          - "set -o pipefail && kustomize build --load-restrictor LoadRestrictionsNone --enable-helm --enable-alpha-plugins . | envsub"
+      discover:
+        find:
+          command: [sh, -c, 'find . -maxdepth 1 -name kustomization.yaml']
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: environment-variables
+  namespace: openshift-gitops
+data:
+  KUSTOMIZE_PLUGIN_HOME: /etc/kustomize/plugin
+  CLUSTER_NAME: '${cluster_name}'
+  CLUSTER_BASE_DOMAIN: '${cluster_base_domain}'
+          # all created clusters base domain should be <cluster-name>.<PLATFORM_BASE_DOMAIN> 
+  PLATFORM_BASE_DOMAIN: '${platform_base_domain}'
+  INFRA_GITOPS_REPO: '${gitops_repo}'        
