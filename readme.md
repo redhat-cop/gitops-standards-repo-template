@@ -86,9 +86,13 @@ To do so you can simply run this commands, however you might want to implement t
 ```sh
 export gitops_repo=<your newly created repo>
 export cluster_name=<your hub cluster name, typically "hub">
+export cluster_base_domain=$(oc get ingress.config.openshift.io cluster --template={{.spec.domain}} | sed -e "s/^apps.//")
+export platform_base_domain=${cluster_base_domain#*.}
 oc apply -f .bootstrap/subscription.yaml
 oc apply -f .bootstrap/cluster-rolebinding.yaml
-oc apply -f .bootstrap/argocd.yaml
+sleep 60
+envsubst < .bootstrap/argocd.yaml | oc apply -f -
+sleep 30
 envsubst < .bootstrap/root-application.yaml | oc apply -f -
 ```
 
