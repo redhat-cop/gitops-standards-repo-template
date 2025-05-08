@@ -23,7 +23,7 @@ spec:
 {{- end }}
   description: {{ tpl $val.description $ }}
   sourceRepos:
-{{ toYaml $val.sourceRepos | indent 4 }}
+{{ tpl (toYaml $val.sourceRepos) $ | indent 4 }}
 {{- if $val.roles }}
   roles:
 {{- with $val.roles }}
