@@ -31,6 +31,15 @@ spec:
         insecureEdgeTerminationPolicy: Redirect
     service:
       type: ""
+  resourceIgnoreDifferences:
+    resourceIdentifiers:
+      - customization:
+          jsonPointers:
+            - /data
+        kind: Secret      
+  resourceCustomizations: |
+    argoproj.io/Application:
+      health.lua: |
   resourceHealthChecks:
     - group: argoproj.io
       kind: Application
