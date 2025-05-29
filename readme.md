@@ -16,6 +16,8 @@ This folder contains all of the root pieces of configurations, these are sometim
 
 ![Components](.docs/media/components.png "Components")
 
+For more examples and starter configurations for components, see the [Gitops Catalog](https://github.com/redhat-cop/gitops-catalog).
+
 ### Groups
 
 This folder contains common pieces of configurations that can be applied to a group of clusters. Groups can capture concepts like the purpose of the cluster (lab,non-prod, prod), the geography of the cluster (west, east, dc1, dc2), the security profile of the cluster (pci, non-pci, connected, disconnected) etc...
@@ -84,13 +86,41 @@ To do so you can simply run this commands, however you might want to implement t
 ```sh
 export gitops_repo=<your newly created repo>
 export cluster_name=<your hub cluster name, typically "hub">
+export cluster_base_domain=$(oc get ingress.config.openshift.io cluster --template={{.spec.domain}} | sed -e "s/^apps.//")
+export platform_base_domain=${cluster_base_domain#*.}
 oc apply -f .bootstrap/subscription.yaml
 oc apply -f .bootstrap/cluster-rolebinding.yaml
-oc apply -f .bootstrap/argocd.yaml
+sleep 60
+envsubst < .bootstrap/argocd.yaml | oc apply -f -
+sleep 30
 envsubst < .bootstrap/root-application.yaml | oc apply -f -
 ```
 
 Note: for pedagogical reason this repo contains some example of components, groups and clusters, you will have to likely remove these examples and start adding the configurations you actually need.
+
+### Local tools & setup
+
+In order to work with this repo effectively, you'll need the following tools installed locally:
+
+- [oc](https://docs.openshift.com/container-platform/4.14/cli_reference/openshift_cli/getting-started-cli.html#installing-openshift-cli)
+- [helm](https://helm.sh/docs/intro/install/)
+- [kustomize](https://kubectl.docs.kubernetes.io/installation/kustomize/binaries/)
+
+### Debugging
+
+Most debugging and troubleshooting can be done by rendering the root app of apps locally using helm & kustomize. Here are a few examples.
+
+Which applications are currently included in the `hub` cluster?
+
+```bash
+kustomize build clusters/hub/ --enable-helm
+```
+
+Which applications are part of the `non-prod` group?
+
+```bash
+kustomize build groups/non-prod/ --enable-helm
+```
 
 ## Use cases
 
